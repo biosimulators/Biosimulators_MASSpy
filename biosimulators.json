@@ -243,18 +243,6 @@
         {
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000656"
-          },
-          "id": "variable_step_size",
-          "name": "Adaptive time steps",
-          "type": "boolean",
-          "value": "false",
-          "recommendedRange": null,
-          "availableSoftwareInterfaceTypes": ["library", "command-line application", "BioSimulators Docker image"]
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
             "id": "KISAO_0000671"
           },
           "id": "stiff",
@@ -443,18 +431,6 @@
         "supportedFeatures": []
       }],
       "parameters": [{
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000656"
-          },
-          "id": "variable_step_size",
-          "name": "Adaptive time steps",
-          "type": "boolean",
-          "value": "true",
-          "recommendedRange": null,
-          "availableSoftwareInterfaceTypes": ["library", "command-line application", "BioSimulators Docker image"]
-        },
-        {
           "kisaoId": {
             "namespace": "KISAO",
             "id": "KISAO_0000485"

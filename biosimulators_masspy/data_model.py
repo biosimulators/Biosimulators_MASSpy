@@ -76,13 +76,6 @@ KISAO_ALGORITHM_MAP = collections.OrderedDict([
                 'type': ValueType.float,
                 'default': None,
             },
-            'KISAO_0000656': {
-                'kisao_id': 'KISAO_0000656',
-                'id': 'variable_step_size',
-                'name': 'Variable time step',
-                'type': ValueType.boolean,
-                'default': False,
-            },
             'KISAO_0000671': {
                 'kisao_id': 'KISAO_0000671',
                 'id': 'stiff',
@@ -129,13 +122,6 @@ KISAO_ALGORITHM_MAP = collections.OrderedDict([
                 'name': 'Minimum time step',
                 'type': ValueType.float,
                 'default': 1e-12,
-            },
-            'KISAO_0000656': {
-                'kisao_id': 'KISAO_0000656',
-                'id': 'variable_step_size',
-                'name': 'Variable time step',
-                'type': ValueType.boolean,
-                'default': True,
             },
             'KISAO_0000597': {
                 'kisao_id': 'KISAO_0000597',
