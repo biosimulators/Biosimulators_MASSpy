@@ -37,7 +37,7 @@ RUN apt-get update -y \
         build-essential \
         libfreetype6-dev \
         pkg-config \
-    && pip install git+https://github.com/biosimulators/MASSpy.git \
+    && pip install masspy \
     && apt-get remove -y \
         git \
         gcc \

@@ -62,7 +62,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install --upgrade setuptools
 
-      # install MASSpy
+      # install requirements for MASSpy
       - name: Install MASSpy
         run: |
           sudo apt-get update -y
@@ -72,7 +72,6 @@ jobs:
             build-essential \
             libfreetype6-dev \
             pkg-config
-          pip install git+https://github.com/biosimulators/MASSpy.git 
 
       # install package
       - name: Install the package
