@@ -28,6 +28,25 @@ LABEL \
     about.tags="kinetic modeling,dynamical simulation,systems biology,biochemical networks,MASSpy,SED-ML,COMBINE,OMEX,BioSimulators" \
     maintainer="BioSimulators Team <info@biosimulators.org>"
 
+
+# Install MASSpy
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends \
+        git \
+        gcc \
+        build-essential \
+        libfreetype6-dev \
+        pkg-config \
+    && pip install git+https://github.com/biosimulators/MASSpy.git \
+    && apt-get remove -y \
+        git \
+        gcc \
+        build-essential \
+        libfreetype6-dev \
+        pkg-config \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy code for command-line interface into image and install it
 COPY . /root/Biosimulators_MASSpy
 RUN pip install /root/Biosimulators_MASSpy \

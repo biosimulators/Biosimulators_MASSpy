@@ -62,6 +62,18 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install --upgrade setuptools
 
+      # install MASSpy
+      - name: Install MASSpy
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends \
+            git \
+            gcc \
+            build-essential \
+            libfreetype6-dev \
+            pkg-config
+          pip install git+https://github.com/biosimulators/MASSpy.git 
+
       # install package
       - name: Install the package
         run: python -m pip install .[all]
