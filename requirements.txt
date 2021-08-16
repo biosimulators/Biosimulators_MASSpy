@@ -1,4 +1,6 @@
-biosimulators_utils[logging] >= 0.1.101
+biosimulators_utils[logging] >= 0.1.104
 kisao >= 2.25
 masspy
 numpy
+
+pycparser <= 2.08
