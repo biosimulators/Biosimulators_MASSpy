@@ -1,7 +1,7 @@
 {
   "id": "masspy",
   "name": "MASSpy",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Tool for kinetic simulation of metabolic reaction networks.",
   "urls": [{
       "type": "Home page",

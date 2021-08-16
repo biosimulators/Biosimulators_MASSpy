@@ -2,7 +2,7 @@
 FROM python:3.9-slim-buster
 
 ARG VERSION="0.0.1"
-ARG SIMULATOR_VERSION=0.1.1
+ARG SIMULATOR_VERSION=0.1.2
 
 # metadata
 LABEL \
@@ -27,7 +27,6 @@ LABEL \
     about.license="SPDX:MIT" \
     about.tags="kinetic modeling,dynamical simulation,systems biology,biochemical networks,MASSpy,SED-ML,COMBINE,OMEX,BioSimulators" \
     maintainer="BioSimulators Team <info@biosimulators.org>"
-
 
 # Install MASSpy
 RUN apt-get update -y \
