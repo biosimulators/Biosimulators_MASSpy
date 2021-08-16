@@ -7,13 +7,13 @@
 :License: MIT
 """
 
+from . import get_simulator_version
 from ._version import __version__
 from .core import exec_sedml_docs_in_combine_archive
 from biosimulators_utils.simulator.cli import build_cli
-import mass
 
 App = build_cli('biosimulators-masspy', __version__,
-                'MASSpy', mass.__version__, 'https://masspy.readthedocs.io/',
+                'MASSpy', get_simulator_version(), 'https://masspy.readthedocs.io/',
                 exec_sedml_docs_in_combine_archive)
 
 
