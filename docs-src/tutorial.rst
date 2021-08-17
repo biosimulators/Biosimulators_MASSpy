@@ -24,7 +24,7 @@ BioSimulators-MASSpy can execute simulation experiments encoded in SED-ML, using
 Example COMBINE/OMEX archives
 +++++++++++++++++++++++++++++
 
-Examples of COMBINE/OMEX archives for logical simulations which BioSimulators-MASSpy can execute are available in the `BioSimulators test suite <https://github.com/biosimulators/Biosimulators_test_suite/tree/deploy/examples>`_.
+Examples of COMBINE/OMEX archives for simulations which BioSimulators-MASSpy can execute are available in the `BioSimulators test suite <https://github.com/biosimulators/Biosimulators_test_suite/tree/deploy/examples>`_.
 
 
 Command-line program
