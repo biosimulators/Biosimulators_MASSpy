@@ -37,7 +37,8 @@ RUN apt-get update -y \
         libfreetype6-dev \
         libfreetype6 \
         pkg-config \
-    && pip install matplotlib==3.2 numpy==1.19.3 \
+    && pip install numpy==1.19.3 \
+    && pip install matplotlib==3.2 \
     && pip install masspy \
     && apt-get remove -y \
         git \
