@@ -35,6 +35,7 @@ RUN apt-get update -y \
         gcc \
         build-essential \
         libfreetype6-dev \
+        libfreetype6 \
         pkg-config \
     && pip install masspy \
     && apt-get remove -y \
