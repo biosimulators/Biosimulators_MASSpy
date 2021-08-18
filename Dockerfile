@@ -40,6 +40,7 @@ RUN apt-get update -y \
     && pip install numpy==1.19.3 \
     && pip install matplotlib==3.2 \
     && pip install masspy \
+    && mkdir -p /.cache/cobrapy \
     && apt-get remove -y \
         git \
         gcc \
