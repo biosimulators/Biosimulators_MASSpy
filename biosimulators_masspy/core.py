@@ -136,7 +136,7 @@ def exec_sed_task(task, variables, log=None):
                 invalid_symbols.append(variable.symbol)
 
         else:
-            sbml_id = target_x_paths_to_sbml_ids[variable.target]
+            sbml_id = target_x_paths_to_sbml_ids.get(variable.target, None)
 
             if not sbml_id or not (
                 (sbml_id.startswith('M_') and sbml_id in met_ids) or
@@ -267,6 +267,8 @@ def exec_sed_task(task, variables, log=None):
         raise ValueError(msg)
 
     # transform simulation results
+    met_ics = {met.id: met.initial_condition for met in mass_model.metabolites}
+
     variable_results = VariableResults()
     for variable in variables:
         if variable.symbol:
@@ -275,8 +277,11 @@ def exec_sed_task(task, variables, log=None):
         else:
             sbml_id = target_x_paths_to_sbml_ids[variable.target]
 
-            if sbml_id.startswith('M_') and sbml_id[2:] in met_concs:
-                variable_results[variable.id] = met_concs[sbml_id[2:]][-(sim.number_of_points + 1):]
+            if sbml_id.startswith('M_'):
+                if sbml_id[2:] in met_concs:
+                    variable_results[variable.id] = met_concs[sbml_id[2:]][-(sim.number_of_points + 1):]
+                else:
+                    variable_results[variable.id] = numpy.full((sim.number_of_points + 1,), met_ics[sbml_id[2:]])
 
             else:
                 variable_results[variable.id] = rxn_fluxes[sbml_id[2:]][-(sim.number_of_points + 1):]
