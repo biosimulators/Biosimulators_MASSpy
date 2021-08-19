@@ -116,12 +116,12 @@
         "namespace": "EDAM",
         "id": "format_2585",
         "version": null,
-        "supportedFeatures": []
+        "supportedFeatures": ["fbc", "groups"]
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
         "id": "format_3685",
-        "version": "L1V3",
+        "version": null,
         "supportedFeatures": []
       }],
       "archiveFormats": [{
@@ -310,12 +310,12 @@
         "namespace": "EDAM",
         "id": "format_2585",
         "version": null,
-        "supportedFeatures": []
+        "supportedFeatures": ["fbc", "groups"]
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
         "id": "format_3685",
-        "version": "L1V3",
+        "version": null,
         "supportedFeatures": []
       }],
       "archiveFormats": [{
@@ -363,12 +363,12 @@
         "namespace": "EDAM",
         "id": "format_2585",
         "version": null,
-        "supportedFeatures": []
+        "supportedFeatures": ["fbc", "groups"]
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
         "id": "format_3685",
-        "version": "L1V3",
+        "version": null,
         "supportedFeatures": []
       }],
       "archiveFormats": [{
@@ -416,12 +416,12 @@
         "namespace": "EDAM",
         "id": "format_2585",
         "version": null,
-        "supportedFeatures": []
+        "supportedFeatures": ["fbc", "groups"]
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
         "id": "format_3685",
-        "version": "L1V3",
+        "version": null,
         "supportedFeatures": []
       }],
       "archiveFormats": [{
