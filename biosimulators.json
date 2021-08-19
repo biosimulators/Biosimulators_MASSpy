@@ -37,7 +37,7 @@
     }
   ],
   "image": {
-    "url": "ghcr.io/biosimulators/biosimulators_masspy/masspy:0.1.1",
+    "url": "ghcr.io/biosimulators/biosimulators_masspy/masspy:0.1.2",
     "format": {
       "namespace": "EDAM",
       "id": "format_3973",
