@@ -175,7 +175,7 @@ def exec_sed_task(task, variables, log=None):
         raise ValueError(msg)
 
     # instantiate simulation
-    mass_sim = mass.Simulation(reference_model=mass_model, verbose=True)
+    mass_sim = mass.Simulation(reference_model=mass_model, verbose=config.VERBOSE)
 
     # configure simulation time course
     number_of_points = sim.number_of_points * (
