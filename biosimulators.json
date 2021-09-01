@@ -46,6 +46,10 @@
     },
     "operatingSystemType": "Linux"
   },
+  "pythonApi": {
+    "package": "biosimulators-masspy",
+    "module": "biosimulators_masspy"
+  },
   "authors": [{
       "firstName": "Zachary",
       "lastName": "Haiman",
@@ -81,7 +85,16 @@
     }
   ],
   "references": {
-    "identifiers": [],
+    "identifiers": [{
+            "namespace": "pypi",
+            "id": "masspy",
+            "url": "https://pypi.org/project/masspy/"
+          },
+        {
+            "namespace": "pypi",
+            "id": "biosimulators-masspy",
+            "url": "https://pypi.org/project/biosimulators-masspy/"
+          }],
     "citations": [{
       "title": "MASSpy: Building, simulating, and visualizing dynamic biological models in Python using mass action kinetics",
       "authors": "Zachary B. Haiman, Daniel C. Zielinski, Yuko Koike, James T. Yurkovich & Bernhard O. Palsson",

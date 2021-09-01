@@ -366,12 +366,15 @@ class CliTestCase(unittest.TestCase):
         doc, archive_filename = self._build_combine_archive()
 
         out_dir = os.path.join(self.dirname, 'out')
-        core.exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
-                                                report_formats=[
-                                                    report_data_model.ReportFormat.h5,
-                                                ],
-                                                bundle_outputs=True,
-                                                keep_individual_outputs=True)
+
+        config = get_config()
+        config.REPORT_FORMATS = [report_data_model.ReportFormat.h5]
+        config.BUNDLE_OUTPUTS = True
+        config.KEEP_INDIVIDUAL_OUTPUTS = True
+
+        _, log = core.exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=config)
+        if log.exception:
+            raise log.exception
 
         self._assert_combine_archive_outputs(doc, out_dir)
 
@@ -486,13 +489,16 @@ class CliTestCase(unittest.TestCase):
         for alg in gen_algorithms_from_specs(self.SPECIFICATIONS_FILENAME).values():
             doc, archive_filename = self._build_combine_archive(algorithm=alg)
             out_dir = os.path.join(self.dirname, alg.kisao_id)
+
+            config = get_config()
+            config.REPORT_FORMATS = [report_data_model.ReportFormat.h5]
+            config.BUNDLE_OUTPUTS = True
+            config.KEEP_INDIVIDUAL_OUTPUTS = True
+
             try:
-                core.exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
-                                                        report_formats=[
-                                                            report_data_model.ReportFormat.h5,
-                                                        ],
-                                                        bundle_outputs=True,
-                                                        keep_individual_outputs=True)
+                _, log = core.exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=config)
+                if log.exception:
+                    raise log.exception
                 self._assert_combine_archive_outputs(doc, out_dir)
             except CombineArchiveExecutionError as exception:
                 if 'Simulation failed' in str(exception):
