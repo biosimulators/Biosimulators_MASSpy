@@ -14,6 +14,13 @@ A simple web application and web service for using MASSpy to execute COMBINE/OME
 
 ## Installation
 
+### Dependencies
+
+* Python >= 3.7
+* pip
+* libncurses
+* libxml
+
 ### Install Python package
 ```
 pip install biosimulators-masspy
