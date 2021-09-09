@@ -48,7 +48,8 @@
   },
   "pythonApi": {
     "package": "biosimulators-masspy",
-    "module": "biosimulators_masspy"
+    "module": "biosimulators_masspy",
+    "installationInstructions": "https://docs.biosimulators.org/Biosimulators_MASSpy/installation.html"
   },
   "authors": [{
       "firstName": "Zachary",
