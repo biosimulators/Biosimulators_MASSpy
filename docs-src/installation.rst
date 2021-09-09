@@ -6,7 +6,7 @@ BioSimulators-MASSpy is available as a command-line program and as a command-lin
 Command-line program
 --------------------
 
-Run the following command to install BioSimulators-MASSpy:
+After installing `Python <https://www.python.org/downloads/>`_ (>= 3.7), `pip <https://pip.pypa.io/>`_, `libncurses <https://invisible-island.net/ncurses/announce.html>`_ and `libXML <http://www.xmlsoft.org/>`_, run the following command to install BioSimulators-MASSpy:
 
 .. code-block:: text
 
