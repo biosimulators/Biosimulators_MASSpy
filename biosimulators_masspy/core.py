@@ -104,7 +104,7 @@ def exec_sed_task(task, variables, preprocessed_task=None, log=None, config=None
     Args:
         task (:obj:`Task`): task
         variables (:obj:`list` of :obj:`Variable`): variables that should be recorded
-        preprocessed_task (:obj:`object`, optional): preprocessed information about the task, including possible
+        preprocessed_task (:obj:`dict`, optional): preprocessed information about the task, including possible
             model changes and variables. This can be used to avoid repeatedly executing the same initialization
             for repeated calls to this method.
         log (:obj:`TaskLog`, optional): log for the task
@@ -134,12 +134,117 @@ def exec_sed_task(task, variables, preprocessed_task=None, log=None, config=None
     model = task.model
     sim = task.simulation
 
+    # get model
+    mass_model = preprocessed_task['model']['model']
+
+    # modify model
+    if model.changes:
+        raise_errors_warnings(validation.validate_model_change_types(model.changes, (ModelAttributeChange, )),
+                              error_summary='Changes for model `{}` are not supported.'.format(model.id))
+        model_change_target_mass_map = preprocessed_task['model']['model_change_target_mass_map']
+        for change in model.changes:
+            component, attr_name = model_change_target_mass_map[change.target]
+            new_value = float(change.new_value)
+            if isinstance(component, dict):
+                component[attr_name] = new_value
+            else:
+                setattr(component, attr_name, new_value)
+
+    # get simulation
+    mass_sim = preprocessed_task['simulation']['simulation']
+
+    # configure simulation time course
+    number_of_points = sim.number_of_points * (
+        sim.output_end_time - sim.initial_time
+    ) / (
+        sim.output_end_time - sim.output_start_time
+    ) + 1
+    if abs(number_of_points % 1) > 1e-8:
+        msg = (
+            'The number of simulation points `{}` must be an integer:'
+            '\n  Initial time: {}'
+            '\n  Output start time: {}'
+            '\n  Output end time: {}'
+            '\n  Number of points: {}'
+        ).format(number_of_points, sim.initial_time, sim.output_start_time, sim.output_start_time, sim.number_of_points)
+        raise NotImplementedError(msg)
+
+    number_of_points = round(number_of_points)
+
+    time = (sim.initial_time, sim.output_end_time, number_of_points)
+
+    # execute simulation
+    met_concs, rxn_fluxes = mass_sim.simulate(mass_model, time=time)
+
+    # check simulation executed successfully
+    if numpy.any(numpy.isnan(met_concs.to_frame())):
+        msg = 'Simulation failed with algorithm `{}` ({})'.format(
+            preprocessed_task['simulation']['algorithm_kisao_id'],
+            preprocessed_task['simulation']['algorithm_roadrunner_id'])
+        for i_param in range(mass_sim.integrator.getNumParams()):
+            param_name = mass_sim.integrator.getParamName(i_param)
+            msg += '\n  - {}: {}'.format(param_name, getattr(mass_sim.integrator, param_name))
+        raise ValueError(msg)
+
+    # transform simulation results
+    met_ics = {met.id: met.initial_condition for met in mass_model.metabolites}
+    variable_target_sbml_id_map = preprocessed_task['model']['variable_target_sbml_id_map']
+    variable_results = VariableResults()
+    for variable in variables:
+        if variable.symbol:
+            variable_results[variable.id] = met_concs._time[-(sim.number_of_points + 1):]
+
+        else:
+            sbml_id = variable_target_sbml_id_map[variable.target]
+
+            if sbml_id.startswith('M_'):
+                if sbml_id[2:] in met_concs:
+                    variable_results[variable.id] = met_concs[sbml_id[2:]][-(sim.number_of_points + 1):]
+                else:
+                    variable_results[variable.id] = numpy.full((sim.number_of_points + 1,), met_ics[sbml_id[2:]])
+
+            else:
+                variable_results[variable.id] = rxn_fluxes[sbml_id[2:]][-(sim.number_of_points + 1):]
+
+    # log action
+    if config.LOG:
+        log.algorithm = preprocessed_task['simulation']['algorithm_kisao_id']
+
+        log.simulator_details = {}
+        log.simulator_details['integrator'] = mass_sim.integrator.getName()
+        for i_param in range(mass_sim.integrator.getNumParams()):
+            param_name = mass_sim.integrator.getParamName(i_param)
+            log.simulator_details[param_name] = getattr(mass_sim.integrator, param_name)
+
+    ############################
+    # return the result of each variable and log
+    return variable_results, log
+
+
+def preprocess_sed_task(task, variables, config=None):
+    """ Preprocess a SED task, including its possible model changes and variables. This is useful for avoiding
+    repeatedly initializing tasks on repeated calls of :obj:`exec_sed_task`.
+
+    Args:
+        task (:obj:`Task`): task
+        variables (:obj:`list` of :obj:`Variable`): variables that should be recorded
+        config (:obj:`Config`, optional): BioSimulators common configuration
+
+    Returns:
+        :obj:`dict`: preprocessed information about the task
+    """
+    config = config or get_config()
+
+    # validate task
+    model = task.model
+    sim = task.simulation
+
     if config.VALIDATE_SEDML:
         raise_errors_warnings(validation.validate_task(task),
                               error_summary='Task `{}` is invalid.'.format(task.id))
         raise_errors_warnings(validation.validate_model_language(model.language, ModelLanguage.SBML),
                               error_summary='Language for model `{}` is not supported.'.format(model.id))
-        raise_errors_warnings(validation.validate_model_change_types(model.changes, ()),
+        raise_errors_warnings(validation.validate_model_change_types(model.changes, (ModelAttributeChange, )),
                               error_summary='Changes for model `{}` are not supported.'.format(model.id))
         raise_errors_warnings(*validation.validate_model_changes(model),
                               error_summary='Changes for model `{}` are invalid.'.format(model.id))
@@ -151,7 +256,9 @@ def exec_sed_task(task, variables, preprocessed_task=None, log=None, config=None
                               error_summary='Data generator variables for task `{}` are invalid.'.format(task.id))
 
     model_etree = lxml.etree.parse(model.source)
-    target_x_paths_to_sbml_ids = validation.validate_target_xpaths(variables, model_etree, attr='id')
+
+    model_change_target_sbml_id_map = validation.validate_target_xpaths(model.changes, model_etree, attr='id')
+    variable_target_sbml_id_map = validation.validate_target_xpaths(variables, model_etree, attr='id')
 
     if config.VALIDATE_SEDML_MODELS:
         raise_errors_warnings(*validation.validate_model(model, [], working_dir='.'),
@@ -160,11 +267,60 @@ def exec_sed_task(task, variables, preprocessed_task=None, log=None, config=None
 
     # read model
     mass_model = mass.io.sbml.read_sbml_model(model.source)
-
-    # validate variables
     met_ids = ['M_' + mass_met.id for mass_met in mass_model.metabolites]
     rxn_ids = ['R_' + mass_rxn.id for mass_rxn in mass_model.reactions]
 
+    # validate model changes
+    model_change_target_mass_map = {}
+
+    sbml_id_mass_parameter_map = {}
+    for reaction in mass_model.reactions:
+        if reaction.equilibrium_constant is not None:
+            sbml_id_mass_parameter_map['Keq_R_' + reaction.id] = (reaction, 'equilibrium_constant')
+            sbml_id_mass_parameter_map['Keq_' + reaction.id] = (reaction, 'equilibrium_constant')
+
+        if reaction.forward_rate_constant is not None:
+            sbml_id_mass_parameter_map['kf_R_' + reaction.id] = (reaction, 'forward_rate_constant')
+            sbml_id_mass_parameter_map['kf_' + reaction.id] = (reaction, 'forward_rate_constant')
+
+        if reaction.reverse_rate_constant is not None:
+            sbml_id_mass_parameter_map['kr_R_' + reaction.id] = (reaction, 'reverse_rate_constant')
+            sbml_id_mass_parameter_map['kr_' + reaction.id] = (reaction, 'reverse_rate_constant')
+
+        if reaction.steady_state_flux is not None:
+            sbml_id_mass_parameter_map['v_R_' + reaction.id] = (reaction, 'steady_state_flux')
+            sbml_id_mass_parameter_map['v_' + reaction.id] = (reaction, 'steady_state_flux')
+
+    for sbml_id in mass_model.custom_parameters.keys():
+        sbml_id_mass_parameter_map[sbml_id] = (mass_model.custom_parameters, sbml_id)
+
+    for sbml_id in mass_model.boundary_conditions.keys():
+        sbml_id_mass_parameter_map[sbml_id] = (mass_model.boundary_conditions, sbml_id)
+
+    invalid_changes = []
+    for target, sbml_id in model_change_target_sbml_id_map.items():
+        if sbml_id in met_ids:
+            model_change_target_mass_map[target] = (mass_model.metabolites[met_ids.index(sbml_id)], 'ic')
+
+        elif sbml_id in sbml_id_mass_parameter_map:
+            model_change_target_mass_map[target] = sbml_id_mass_parameter_map[sbml_id]
+
+        else:
+            invalid_changes.append(target)
+
+    if invalid_changes:
+        msg = (
+            'The following model change targets are not supported:\n  - {}'
+            '\n'
+            '\n'
+            'Only following change targets are supported:\n  - {}'
+        ).format(
+            '\n  - '.join(sorted(invalid_changes)),
+            '\n  - '.join(sorted(met_ids + list(sbml_id_mass_parameter_map.keys()))),
+        )
+        raise ValueError(msg)
+
+    # validate variables
     invalid_symbols = []
     invalid_targets = []
     for variable in variables:
@@ -173,12 +329,9 @@ def exec_sed_task(task, variables, preprocessed_task=None, log=None, config=None
                 invalid_symbols.append(variable.symbol)
 
         else:
-            sbml_id = target_x_paths_to_sbml_ids.get(variable.target, None)
+            sbml_id = variable_target_sbml_id_map.get(variable.target, None)
 
-            if not sbml_id or not (
-                (sbml_id.startswith('M_') and sbml_id in met_ids) or
-                (sbml_id.startswith('R_') and sbml_id in rxn_ids)
-            ):
+            if not sbml_id or not (sbml_id in met_ids or sbml_id in rxn_ids):
                 invalid_targets.append(variable.target)
 
     if invalid_symbols:
@@ -213,26 +366,6 @@ def exec_sed_task(task, variables, preprocessed_task=None, log=None, config=None
 
     # instantiate simulation
     mass_sim = mass.Simulation(reference_model=mass_model, verbose=config.VERBOSE)
-
-    # configure simulation time course
-    number_of_points = sim.number_of_points * (
-        sim.output_end_time - sim.initial_time
-    ) / (
-        sim.output_end_time - sim.output_start_time
-    ) + 1
-    if abs(number_of_points % 1) > 1e-8:
-        msg = (
-            'The number of simulation points `{}` must be an integer:'
-            '\n  Initial time: {}'
-            '\n  Output start time: {}'
-            '\n  Output end time: {}'
-            '\n  Number of points: {}'
-        ).format(number_of_points, sim.initial_time, sim.output_start_time, sim.output_start_time, sim.number_of_points)
-        raise NotImplementedError(msg)
-
-    number_of_points = round(number_of_points)
-
-    time = (sim.initial_time, sim.output_end_time, number_of_points)
 
     # configure simulation algorithm
     algorithm_substitution_policy = get_algorithm_substitution_policy(config=config)
@@ -291,62 +424,17 @@ def exec_sed_task(task, variables, preprocessed_task=None, log=None, config=None
     if hasattr(mass_sim.integrator, 'variable_step_size'):
         mass_sim.integrator.variable_step_size = False
 
-    # execute simulation
-    met_concs, rxn_fluxes = mass_sim.simulate(mass_model, time=time)
-
-    # check simulation executed successfully
-    if numpy.any(numpy.isnan(met_concs.to_frame())):
-        msg = 'Simulation failed with algorithm `{}` ({})'.format(exec_kisao_id, alg_props['id'])
-        for i_param in range(mass_sim.integrator.getNumParams()):
-            param_name = mass_sim.integrator.getParamName(i_param)
-            msg += '\n  - {}: {}'.format(param_name, getattr(mass_sim.integrator, param_name))
-        raise ValueError(msg)
-
-    # transform simulation results
-    met_ics = {met.id: met.initial_condition for met in mass_model.metabolites}
-
-    variable_results = VariableResults()
-    for variable in variables:
-        if variable.symbol:
-            variable_results[variable.id] = met_concs._time[-(sim.number_of_points + 1):]
-
-        else:
-            sbml_id = target_x_paths_to_sbml_ids[variable.target]
-
-            if sbml_id.startswith('M_'):
-                if sbml_id[2:] in met_concs:
-                    variable_results[variable.id] = met_concs[sbml_id[2:]][-(sim.number_of_points + 1):]
-                else:
-                    variable_results[variable.id] = numpy.full((sim.number_of_points + 1,), met_ics[sbml_id[2:]])
-
-            else:
-                variable_results[variable.id] = rxn_fluxes[sbml_id[2:]][-(sim.number_of_points + 1):]
-
-    # log action
-    if config.LOG:
-        log.algorithm = exec_kisao_id
-
-        log.simulator_details = {}
-        log.simulator_details['integrator'] = mass_sim.integrator.getName()
-        for i_param in range(mass_sim.integrator.getNumParams()):
-            param_name = mass_sim.integrator.getParamName(i_param)
-            log.simulator_details[param_name] = getattr(mass_sim.integrator, param_name)
-
     ############################
-    # return the result of each variable and log
-    return variable_results, log
-
-
-def preprocess_sed_task(task, variables, config=None):
-    """ Preprocess a SED task, including its possible model changes and variables. This is useful for avoiding
-    repeatedly initializing tasks on repeated calls of :obj:`exec_sed_task`.
-
-    Args:
-        task (:obj:`Task`): task
-        variables (:obj:`list` of :obj:`Variable`): variables that should be recorded
-        config (:obj:`Config`, optional): BioSimulators common configuration
-
-    Returns:
-        :obj:`object`: preprocessed information about the task
-    """
-    pass
+    # return preprocessed information
+    return {
+        'model': {
+            'model': mass_model,
+            'model_change_target_mass_map': model_change_target_mass_map,
+            'variable_target_sbml_id_map': variable_target_sbml_id_map,
+        },
+        'simulation': {
+            'simulation': mass_sim,
+            'algorithm_kisao_id': exec_kisao_id,
+            'algorithm_roadrunner_id': alg_props['id'],
+        },
+    }

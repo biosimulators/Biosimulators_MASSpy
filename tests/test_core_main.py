@@ -27,6 +27,7 @@ import copy
 import datetime
 import dateutil.tz
 import json
+import mass
 import numpy
 import numpy.testing
 import os
@@ -281,6 +282,116 @@ class CliTestCase(unittest.TestCase):
         with mock.patch.dict('os.environ', {'ALGORITHM_SUBSTITUTION_POLICY': 'SIMILAR_VARIABLES'}):
             with self.assertWarns(BioSimulatorsWarning):
                 core.exec_sed_task(task_2, variables)
+
+    def test_exec_sed_task_with_changes(self):
+        # configure simulation
+        task = sedml_data_model.Task(
+            model=sedml_data_model.Model(
+                source=self.EXAMPLE_MODEL_FILENAME,
+                language=sedml_data_model.ModelLanguage.SBML.value,
+            ),
+            simulation=sedml_data_model.UniformTimeCourseSimulation(
+                initial_time=0.,
+                output_start_time=0.,
+                output_end_time=10.,
+                number_of_points=10,
+                algorithm=sedml_data_model.Algorithm(
+                    kisao_id='KISAO_0000019',
+                ),
+            ),
+        )
+
+        variables = [
+            sedml_data_model.Variable(
+                id='Time',
+                symbol=sedml_data_model.Symbol.time,
+                task=task),
+        ]
+        mass_model = mass.io.sbml.read_sbml_model(task.model.source)
+        for met in mass_model.metabolites:
+            task.model.changes.append(sedml_data_model.ModelAttributeChange(
+                target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='M_{}']".format(met.id),
+                target_namespaces=self.NAMESPACES,
+                new_value=None))
+            variables.append(sedml_data_model.Variable(
+                id=met.id,
+                target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='M_{}']".format(met.id),
+                target_namespaces=self.NAMESPACES,
+                task=task))
+
+        task.model.changes.append(sedml_data_model.ModelAttributeChange(
+            target="/sbml:sbml/sbml:model/sbml:listOfParameters/sbml:parameter[@id='v_R_HEX1']",
+            target_namespaces=self.NAMESPACES,
+            new_value=10))
+        task.model.changes.append(sedml_data_model.ModelAttributeChange(
+            target="/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction[@id='R_PFK_R01']/sbml:kineticLaw/sbml:listOfLocalParameters/sbml:localParameter[@id='Keq_PFK_A']",
+            target_namespaces=self.NAMESPACES,
+            new_value=20))
+        task.model.changes.append(sedml_data_model.ModelAttributeChange(
+            target="/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction[@id='R_SK_lac__L_c']/sbml:kineticLaw/sbml:listOfLocalParameters/sbml:localParameter[@id='lac__L_b']",
+            target_namespaces=self.NAMESPACES,
+            new_value=25))
+        task.model.changes.append(sedml_data_model.ModelAttributeChange(
+            target="/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction[@id='R_ADK1']/sbml:kineticLaw/sbml:listOfLocalParameters/sbml:localParameter[@id='kf_R_ADK1']",
+            target_namespaces=self.NAMESPACES,
+            new_value=30))
+
+        # execute simulation
+        preprocessed_task = core.preprocess_sed_task(task, variables)
+
+        task.model.changes.append(sedml_data_model.ModelAttributeChange(
+            target="/sbml:sbml/sbml:model",
+            target_namespaces=self.NAMESPACES,
+            new_value=None))
+        with self.assertRaises(ValueError):
+            core.preprocess_sed_task(task, variables)
+
+        task.model.changes = []
+        results, _ = core.exec_sed_task(task, variables, preprocessed_task=preprocessed_task)
+
+        for met in mass_model.metabolites:
+            with self.assertRaises(AssertionError):
+                numpy.testing.assert_allclose(results[met.id][0:task.simulation.number_of_points + 1],
+                                              results[met.id][(-task.simulation.number_of_points + 1):])
+
+        task.simulation.output_end_time = task.simulation.output_end_time / 2
+        task.simulation.number_of_points = int(task.simulation.number_of_points / 2)
+        results2, _ = core.exec_sed_task(task, variables, preprocessed_task=preprocessed_task)
+
+        for met in mass_model.metabolites:
+            numpy.testing.assert_allclose(results2[met.id], results[met.id][0:task.simulation.number_of_points + 1])
+            task.model.changes.append(sedml_data_model.ModelAttributeChange(
+                target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='M_{}']".format(met.id),
+                target_namespaces=self.NAMESPACES,
+                new_value=results2[met.id][-1]))
+
+        results3, _ = core.exec_sed_task(task, variables, preprocessed_task=preprocessed_task)
+        for met in mass_model.metabolites:
+            numpy.testing.assert_allclose(results3[met.id], results[met.id][-(task.simulation.number_of_points + 1):])
+
+        # parameters
+        task.model.changes.append(sedml_data_model.ModelAttributeChange(
+            target="/sbml:sbml/sbml:model/sbml:listOfParameters/sbml:parameter[@id='v_R_HEX1']",
+            target_namespaces=self.NAMESPACES,
+            new_value=10))
+        task.model.changes.append(sedml_data_model.ModelAttributeChange(
+            target="/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction[@id='R_PFK_R01']/sbml:kineticLaw/sbml:listOfLocalParameters/sbml:localParameter[@id='Keq_PFK_A']",
+            target_namespaces=self.NAMESPACES,
+            new_value=20))
+        task.model.changes.append(sedml_data_model.ModelAttributeChange(
+            target="/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction[@id='R_SK_lac__L_c']/sbml:kineticLaw/sbml:listOfLocalParameters/sbml:localParameter[@id='lac__L_b']",
+            target_namespaces=self.NAMESPACES,
+            new_value=25))
+        task.model.changes.append(sedml_data_model.ModelAttributeChange(
+            target="/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction[@id='R_ADK1']/sbml:kineticLaw/sbml:listOfLocalParameters/sbml:localParameter[@id='kf_R_ADK1']",
+            target_namespaces=self.NAMESPACES,
+            new_value=30))
+
+        core.exec_sed_task(task, variables, preprocessed_task=preprocessed_task)
+        self.assertEqual(preprocessed_task['model']['model'].parameters['v']['v_HEX1'], 10)
+        self.assertEqual(preprocessed_task['model']['model'].parameters['Custom']['Keq_PFK_A'], 20)
+        self.assertEqual(preprocessed_task['model']['model'].parameters['Boundary']['lac__L_b'], 25)
+        self.assertEqual(preprocessed_task['model']['model'].parameters['kf']['kf_ADK1'], 30)
 
     def test_exec_sed_task_sim_error_handling(self):
         # configure simulation
