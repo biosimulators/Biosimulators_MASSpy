@@ -132,12 +132,47 @@
         "version": null,
         "supportedFeatures": ["fbc", "groups", "mass"]
       }],
+      "modelChangePatterns": [
+        {
+          "name": "Change component attributes",
+          "types": ["SedAttributeModelChange", "SedComputeAttributeChangeModelChange", "SedSetValueAttributeModelChange"],
+          "target": {
+            "value": "//*/@*",
+            "grammar": "XPath"
+          }
+        },
+        {
+          "name": "Add components",
+          "types": ["SedAddXmlModelChange"],
+          "target": {
+            "value": "//*",
+            "grammar": "XPath"
+          }
+        },
+        {
+          "name": "Remove components",
+          "types": ["SedRemoveXmlModelChange"],
+          "target": {
+            "value": "//*",
+            "grammar": "XPath"
+          }
+        },
+        {
+          "name": "Change components",
+          "types": ["SedChangeXmlModelChange"],
+          "target": {
+            "value": "//*",
+            "grammar": "XPath"
+          }
+        }        
+      ],
       "simulationFormats": [{
         "namespace": "EDAM",
         "id": "format_3685",
         "version": null,
         "supportedFeatures": []
       }],
+      "simulationTypes": ["SedUniformTimeCourseSimulation"],
       "archiveFormats": [{
         "namespace": "EDAM",
         "id": "format_3686",
@@ -279,17 +314,25 @@
           "availableSoftwareInterfaceTypes": ["library", "command-line application", "BioSimulators Docker image"]
         }
       ],
-      "dependentDimensions": [{
+      "outputDimensions": [{
         "namespace": "SIO",
         "id": "SIO_000418"
       }],
-      "dependentVariableTargetPatterns": [{
-          "variables": "species concentrations",
-          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species"
+      "outputVariablePatterns": [
+        {
+          "name": "time",
+          "symbol": {
+                    "value": "time",
+                    "namespace": "urn:sedml:symbol"
+                  }
         },
         {
-          "variables": "reaction fluxes",
-          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction"
+          "name": "species concentrations",
+          "target": {"value": "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species", "grammar": "XPath"}
+        },
+        {
+          "name": "reaction fluxes",
+          "target": {"value": "/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction", "grammar": "XPath"}
         }
       ],
       "availableSoftwareInterfaceTypes": ["library", "command-line application", "BioSimulators Docker image"],
@@ -326,12 +369,47 @@
         "version": null,
         "supportedFeatures": ["fbc", "groups", "mass"]
       }],
+      "modelChangePatterns": [
+        {
+          "name": "Change component attributes",
+          "types": ["SedAttributeModelChange", "SedComputeAttributeChangeModelChange", "SedSetValueAttributeModelChange"],
+          "target": {
+            "value": "//*/@*",
+            "grammar": "XPath"
+          }
+        },
+        {
+          "name": "Add components",
+          "types": ["SedAddXmlModelChange"],
+          "target": {
+            "value": "//*",
+            "grammar": "XPath"
+          }
+        },
+        {
+          "name": "Remove components",
+          "types": ["SedRemoveXmlModelChange"],
+          "target": {
+            "value": "//*",
+            "grammar": "XPath"
+          }
+        },
+        {
+          "name": "Change components",
+          "types": ["SedChangeXmlModelChange"],
+          "target": {
+            "value": "//*",
+            "grammar": "XPath"
+          }
+        }        
+      ],
       "simulationFormats": [{
         "namespace": "EDAM",
         "id": "format_3685",
         "version": null,
         "supportedFeatures": []
       }],
+      "simulationTypes": ["SedUniformTimeCourseSimulation"],
       "archiveFormats": [{
         "namespace": "EDAM",
         "id": "format_3686",
@@ -339,17 +417,25 @@
         "supportedFeatures": []
       }],
       "parameters": [],
-      "dependentDimensions": [{
+      "outputDimensions": [{
         "namespace": "SIO",
         "id": "SIO_000418"
       }],
-      "dependentVariableTargetPatterns": [{
-          "variables": "species concentrations",
-          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species"
+      "outputVariablePatterns": [
+        {
+          "name": "time",
+          "symbol": {
+                    "value": "time",
+                    "namespace": "urn:sedml:symbol"
+                  }
         },
         {
-          "variables": "reaction fluxes",
-          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction"
+          "name": "species concentrations",
+          "target": {"value": "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species", "grammar": "XPath"}
+        },
+        {
+          "name": "reaction fluxes",
+          "target": {"value": "/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction", "grammar": "XPath"}
         }
       ],
       "availableSoftwareInterfaceTypes": ["library", "command-line application", "BioSimulators Docker image"],
@@ -379,12 +465,47 @@
         "version": null,
         "supportedFeatures": ["fbc", "groups", "mass"]
       }],
+      "modelChangePatterns": [
+        {
+          "name": "Change component attributes",
+          "types": ["SedAttributeModelChange", "SedComputeAttributeChangeModelChange", "SedSetValueAttributeModelChange"],
+          "target": {
+            "value": "//*/@*",
+            "grammar": "XPath"
+          }
+        },
+        {
+          "name": "Add components",
+          "types": ["SedAddXmlModelChange"],
+          "target": {
+            "value": "//*",
+            "grammar": "XPath"
+          }
+        },
+        {
+          "name": "Remove components",
+          "types": ["SedRemoveXmlModelChange"],
+          "target": {
+            "value": "//*",
+            "grammar": "XPath"
+          }
+        },
+        {
+          "name": "Change components",
+          "types": ["SedChangeXmlModelChange"],
+          "target": {
+            "value": "//*",
+            "grammar": "XPath"
+          }
+        }        
+      ],
       "simulationFormats": [{
         "namespace": "EDAM",
         "id": "format_3685",
         "version": null,
         "supportedFeatures": []
       }],
+      "simulationTypes": ["SedUniformTimeCourseSimulation"],
       "archiveFormats": [{
         "namespace": "EDAM",
         "id": "format_3686",
@@ -392,17 +513,24 @@
         "supportedFeatures": []
       }],
       "parameters": [],
-      "dependentDimensions": [{
+      "outputDimensions": [{
         "namespace": "SIO",
         "id": "SIO_000418"
       }],
-      "dependentVariableTargetPatterns": [{
-          "variables": "species concentrations",
-          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species"
+      "outputVariablePatterns": [{
+          "name": "time",
+          "symbol": {
+                    "value": "time",
+                    "namespace": "urn:sedml:symbol"
+                  }
         },
         {
-          "variables": "reaction fluxes",
-          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction"
+          "name": "species concentrations",
+          "target": {"value": "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species", "grammar": "XPath"}
+        },
+        {
+          "name": "reaction fluxes",
+          "target": {"value": "/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction", "grammar": "XPath"}
         }
       ],
       "availableSoftwareInterfaceTypes": ["library", "command-line application", "BioSimulators Docker image"],
@@ -432,12 +560,47 @@
         "version": null,
         "supportedFeatures": ["fbc", "groups", "mass"]
       }],
+      "modelChangePatterns": [
+        {
+          "name": "Change component attributes",
+          "types": ["SedAttributeModelChange", "SedComputeAttributeChangeModelChange", "SedSetValueAttributeModelChange"],
+          "target": {
+            "value": "//*/@*",
+            "grammar": "XPath"
+          }
+        },
+        {
+          "name": "Add components",
+          "types": ["SedAddXmlModelChange"],
+          "target": {
+            "value": "//*",
+            "grammar": "XPath"
+          }
+        },
+        {
+          "name": "Remove components",
+          "types": ["SedRemoveXmlModelChange"],
+          "target": {
+            "value": "//*",
+            "grammar": "XPath"
+          }
+        },
+        {
+          "name": "Change components",
+          "types": ["SedChangeXmlModelChange"],
+          "target": {
+            "value": "//*",
+            "grammar": "XPath"
+          }
+        }        
+      ],
       "simulationFormats": [{
         "namespace": "EDAM",
         "id": "format_3685",
         "version": null,
         "supportedFeatures": []
       }],
+      "simulationTypes": ["SedUniformTimeCourseSimulation"],
       "archiveFormats": [{
         "namespace": "EDAM",
         "id": "format_3686",
@@ -481,17 +644,25 @@
           "availableSoftwareInterfaceTypes": ["library", "command-line application", "BioSimulators Docker image"]
         }
       ],
-      "dependentDimensions": [{
+      "outputDimensions": [{
         "namespace": "SIO",
         "id": "SIO_000418"
       }],
-      "dependentVariableTargetPatterns": [{
-          "variables": "species concentrations",
-          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species"
+      "outputVariablePatterns": [
+        {
+          "name": "time",
+          "symbol": {
+                    "value": "time",
+                    "namespace": "urn:sedml:symbol"
+                  }
         },
         {
-          "variables": "reaction fluxes",
-          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction"
+          "name": "species concentrations",
+          "target": {"value": "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species", "grammar": "XPath"}
+        },
+        {
+          "name": "reaction fluxes",
+          "target": {"value": "/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction", "grammar": "XPath"}
         }
       ],
       "availableSoftwareInterfaceTypes": ["library", "command-line application", "BioSimulators Docker image"],
