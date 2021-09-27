@@ -46,6 +46,12 @@
     },
     "operatingSystemType": "Linux"
   },
+  "cli": {
+    "packageRepository": "PyPI",
+    "package": "biosimulators-masspy",
+    "command": "biosimulators-masspy",
+    "installationInstructions": "https://docs.biosimulators.org/Biosimulators_MASSpy/installation.html"
+  },
   "pythonApi": {
     "package": "biosimulators-masspy",
     "module": "biosimulators_masspy",
