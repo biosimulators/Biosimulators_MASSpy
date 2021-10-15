@@ -28,6 +28,14 @@ LABEL \
     about.tags="kinetic modeling,dynamical simulation,systems biology,biochemical networks,MASSpy,SED-ML,COMBINE,OMEX,BioSimulators" \
     maintainer="BioSimulators Team <info@biosimulators.org>"
 
+# Install requirements for tellurium
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends \
+        libxml2 \
+        libncurses5 \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install MASSpy
 RUN apt-get update -y \
     && apt-get install -y --no-install-recommends \

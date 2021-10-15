@@ -421,7 +421,8 @@ def preprocess_sed_task(task, variables, config=None):
                     ])
                     warn(msg, BioSimulatorsWarning)
 
-    if hasattr(mass_sim.integrator, 'variable_step_size'):
+    # implemented this way due to tellurium bug: https://github.com/sys-bio/tellurium/issues/546
+    if 'variable_step_size' in dir(mass_sim.integrator):
         mass_sim.integrator.variable_step_size = False
 
     ############################
