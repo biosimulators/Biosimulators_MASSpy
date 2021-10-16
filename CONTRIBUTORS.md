@@ -7,7 +7,8 @@ BioSimulators-MASSpy was developed with help from the following people:
 <!-- markdownlint-disable -->
 <table>
   <tr>
-    <td align="center"><a href="https://www.karrlab.org"><img src="https://avatars.githubusercontent.com/u/2848297?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Jonathan Karr</b></sub></a><br /><a href="https://github.com/biosimulators/Biosimulators_utils/commits?author=jonrkarr" title="Code">💻</a></td>
+    <td align="center"><a href="https://www.karrlab.org"><img src="https://avatars.githubusercontent.com/u/2848297?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Jonathan Karr</b></sub></a><br /><a href="https://github.com/biosimulators/Biosimulators_MASSpy/commits?author=jonrkarr" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/z-haiman"><img src="https://avatars.githubusercontent.com/u/29131681?v=4?s=100" width="100px;" alt=""/><br /><sub><b>z-haiman</b></sub></a><br /><a href="#tool-z-haiman" title="Tools">🔧</a></td>
   </tr>
 </table>
 
