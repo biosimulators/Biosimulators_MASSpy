@@ -189,8 +189,8 @@
         "title": "CVODE, a stiff/nonstiff ODE solver in C",
         "authors": "Scott D. Cohen, Alan C. Hindmarsh & Paul F. Dubois",
         "journal": "Computers in Physics",
-        "volume": 10,
-        "issue": 2,
+        "volume": "10",
+        "issue": "2",
         "pages": "138-143",
         "year": 1996,
         "identifiers": [{
