@@ -2,6 +2,14 @@ name: Continuous integration
 
 on:
   push:
+  workflow_dispatch:
+    inputs:
+      simulatorVersion:
+        description: New version of the underlying simulation tool (e.g., '1.5.6')
+        required: true
+      simulatorVersionLatest:
+        description: Is this version the latest version of the underlying simulation tool ("true" or "false")?
+        required: false
 
 jobs:
   continuousIntegration:
@@ -13,6 +21,7 @@ jobs:
       mainBranchHeadRevision: ${{ steps.get-main-branch.outputs.mainBranchHeadRevision }}
       version: ${{ steps.get-version-number.outputs.version }}
       simulatorId: ${{ steps.get-docker-image-tag.outputs.simulatorId }}
+      simulatorVersion: ${{ steps.get-docker-image-tag.outputs.simulatorVersion }}
       simulatorName: ${{ steps.get-docker-image-tag.outputs.simulatorName }}
       dockerImageBaseUrl: ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}
       dockerRegistry: ${{ steps.get-docker-image-tag.outputs.dockerRegistry }}
@@ -40,6 +49,23 @@ jobs:
           else
             git checkout ${{ github.ref }}
           fi
+
+      #############################################
+      ## Update the version of the simulator
+      #############################################
+      - name: Update the version of the simulator
+        if: github.event.inputs.simulatorVersion
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends jq moreutils
+
+          IMAGE_BASE_URL=$(jq -r '.image.url' biosimulators.json | cut -d : -f 1)
+          jq ".version = \"${{ github.event.inputs.simulatorVersion }}\"" biosimulators.json | sponge biosimulators.json
+          jq ".image.url = \"${IMAGE_BASE_URL}:${{ github.event.inputs.simulatorVersion }}\"" biosimulators.json | sponge biosimulators.json
+
+          sed -i -E \
+            "s/SIMULATOR_VERSION=([^ \n]+|\".*?\")/SIMULATOR_VERSION=\"${{ github.event.inputs.simulatorVersion }}\"/" \
+            Dockerfile
 
       #############################################
       ## Install package and its dependencies
@@ -171,6 +197,31 @@ jobs:
           sphinx-build docs-src docs
 
       #############################################
+      ## Commit and push new version of simulator
+      #############################################
+      # If new version of simulator, commit and push the new version
+      - name: Commit the revised version of the simulator
+        if: github.event.inputs.simulatorVersion && github.event.inputs.simulatorVersionLatest == 'true'
+        run: |
+          git config --local user.email "biosimulators.daemon@gmail.com"
+          git config --local user.name "biosimulatorsdaemon"
+          git config pull.rebase false
+          git stash -- biosimulators.json Dockerfile
+          git clean -f -d
+          git checkout .
+          git pull
+          git stash pop
+          git add biosimulators.json Dockerfile
+          git commit -m "Updating version of simulator"
+
+      - name: Push the revised version of the simulator
+        if: github.event.inputs.simulatorVersion && github.event.inputs.simulatorVersionLatest == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
+
+      #############################################
       ## Release
       #############################################
 
@@ -178,6 +229,12 @@ jobs:
         name: Determine if a release should be made
         run: |
           release="0"
+
+          if [ ! -z "${{ github.event.inputs.simulatorVersion }}" ]; then
+            if [ "${{ github.ref }}" == "${{ steps.get-main-branch.outputs.mainBranchRef }}" ]; then
+              release="1"
+            fi
+          fi
 
           if [[ "${{ github.ref }}" =~ ^refs/tags/ ]]; then
             tag_hash=$(git rev-parse "${{ github.ref }}")
@@ -269,7 +326,7 @@ jobs:
             --password ${{ secrets.DOCKER_REGISTRY_TOKEN }}
           docker push ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:${{ steps.get-docker-image-tag.outputs.simulatorVersion }}
 
-          if [[ "${{ github.ref }}" =~ ^refs/tags/ ]]; then
+          if [[ "${{ github.ref }}" =~ ^refs/tags/ ]] || [ "${{ github.event.inputs.simulatorVersionLatest }}" == "true" ]; then
             docker push ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:latest
           fi
 
