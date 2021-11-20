@@ -1,7 +1,7 @@
 {
   "id": "masspy",
   "name": "MASSpy",
-  "version": "0.1.5b1",
+  "version": "0.1.5",
   "description": "Tool for kinetic simulation of metabolic reaction networks.",
   "urls": [
     {
@@ -38,7 +38,7 @@
     }
   ],
   "image": {
-    "url": "ghcr.io/biosimulators/biosimulators_masspy/masspy:0.1.5b1",
+    "url": "ghcr.io/biosimulators/biosimulators_masspy/masspy:0.1.5",
     "format": {
       "namespace": "EDAM",
       "id": "format_3973",
