@@ -36,27 +36,8 @@ RUN apt-get update -y \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 
-# Install MASSpy
-RUN apt-get update -y \
-    && apt-get install -y --no-install-recommends \
-        git \
-        gcc \
-        build-essential \
-        libfreetype6-dev \
-        libfreetype6 \
-        pkg-config \
-    && pip install numpy==1.19.3 \
-    && pip install matplotlib==3.2 \
-    && pip install masspy \
-    && mkdir -p /.cache/cobrapy \
-    && apt-get remove -y \
-        git \
-        gcc \
-        build-essential \
-        libfreetype6-dev \
-        pkg-config \
-    && apt-get autoremove -y \
-    && rm -rf /var/lib/apt/lists/*
+# Create COBRApy cache
+RUN mkdir -p /.cache/cobrapy
 
 # Copy code for command-line interface into image and install it
 COPY . /root/Biosimulators_MASSpy
