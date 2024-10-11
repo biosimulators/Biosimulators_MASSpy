@@ -32,6 +32,7 @@ LABEL \
 RUN apt-get update -y \
     && apt-get install -y --no-install-recommends \
         libxml2 \
+        libncurses5 \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 

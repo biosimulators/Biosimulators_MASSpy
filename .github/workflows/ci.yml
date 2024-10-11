@@ -89,7 +89,7 @@ jobs:
           python -m pip install pip==23.0.0
 
       # install requirements for MASSpy
-      - name: Install libXML2
+      - name: Install libXML2, libncurses5 required for tellurium, which is required for MASSpy
         run: |
           sudo apt-get update -y
           sudo apt-get install -y --no-install-recommends libxml2
