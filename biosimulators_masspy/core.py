@@ -269,7 +269,7 @@ def preprocess_sed_task(task, variables, config=None):
     # read model
     # Have to convert to L3v1 by hand; automatic conversion fails.
     doc = libsbml.readSBML(model.source)
-    doc.setLevelAndVersion(3,1)
+    doc.setLevelAndVersion(3, 1)
     sbml = libsbml.writeSBMLToString(doc)
     mass_model = mass.io.sbml.read_sbml_model(sbml)
     met_ids = ['M_' + mass_met.id for mass_met in mass_model.metabolites]
