@@ -26,6 +26,7 @@ import lxml.etree
 import mass
 import mass.io.sbml
 import numpy
+import libsbml
 
 __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_doc', 'exec_sed_task', 'preprocess_sed_task']
 
@@ -266,7 +267,11 @@ def preprocess_sed_task(task, variables, config=None):
                               warning_summary='Model `{}` may be invalid.'.format(model.id))
 
     # read model
-    mass_model = mass.io.sbml.read_sbml_model(model.source)
+    # Have to convert to L3v1 by hand; automatic conversion fails.
+    doc = libsbml.readSBML(model.source)
+    doc.setLevelAndVersion(3,1)
+    sbml = libsbml.writeSBMLToString(doc)
+    mass_model = mass.io.sbml.read_sbml_model(sbml)
     met_ids = ['M_' + mass_met.id for mass_met in mass_model.metabolites]
     rxn_ids = ['R_' + mass_rxn.id for mass_rxn in mass_model.reactions]
 
