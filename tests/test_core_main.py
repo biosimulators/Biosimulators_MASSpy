@@ -312,7 +312,7 @@ class CliTestCase(unittest.TestCase):
             task.model.changes.append(sedml_data_model.ModelAttributeChange(
                 target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='M_{}']".format(met.id),
                 target_namespaces=self.NAMESPACES,
-                new_value=None))
+                new_value=5))
             variables.append(sedml_data_model.Variable(
                 id=met.id,
                 target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='M_{}']".format(met.id),
@@ -342,7 +342,7 @@ class CliTestCase(unittest.TestCase):
         task.model.changes.append(sedml_data_model.ModelAttributeChange(
             target="/sbml:sbml/sbml:model",
             target_namespaces=self.NAMESPACES,
-            new_value=None))
+            new_value=5))
         with self.assertRaises(ValueError):
             core.preprocess_sed_task(task, variables)
 
