@@ -14,7 +14,7 @@ on:
 jobs:
   continuousIntegration:
     name: Update simulator version, lint, test, compile documentation, and release
-    runs-on: ubuntu-22
+    runs-on: ubuntu-23
     outputs:
       mainBranch: ${{ steps.get-main-branch.outputs.mainBranch }}
       mainBranchRef: ${{ steps.get-main-branch.outputs.mainBranchRef }}
