@@ -19,12 +19,12 @@ exclude = ['tests', 'tests.*']
 [tool.poetry.dependencies]
 python = "^3.9"
 biosimulators_utils = {version = "^0.1.151", extras = ["logging", "sbml"]}
-cobra <= "0.23.0"
+cobra = "<= 0.23.0"
 kisao = "^2.34"
-libroadrunner <= "2.2.0"
+libroadrunner = "<= 2.2.0"
 lxml = "^4.5"
 masspy = "^0.1.5"
-numpy <= "1.22.0"
+numpy = "<= 1.22.0"
 docker = "^7.1.0"
 
 [tool.poetry.group.dev.dependencies]
