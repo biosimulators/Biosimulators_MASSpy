@@ -24,7 +24,7 @@ kisao = "^2.34"
 libroadrunner = "> 2.2.0"
 lxml = "^4.5"
 masspy = "^0.1.7"
-numpy = "> 1.22.0"
+numpy = "< 1.24.0"
 docker = "^7.1.0"
 
 [tool.poetry.group.dev.dependencies]
