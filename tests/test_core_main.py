@@ -645,3 +645,15 @@ class CliTestCase(unittest.TestCase):
             archive_filename, out_dir, docker_image, environment=env, pull_docker_image=False)
 
         self._assert_combine_archive_outputs(doc, out_dir)
+
+    def test_exec_sedml_docs_in_combine_archive(self):
+            # with reports
+            archive_filename = 'fixtures/Ciliberto-J-Cell-Biol-2003-morphogenesis-checkpoint-Fehlberg.omex'
+
+            dirname = os.path.join(self.dirname, 'reports')
+            _, log = core.exec_sedml_docs_in_combine_archive(archive_filename, dirname)
+            if log.exception:
+                raise log.exception
+
+if __name__ == "__main__":
+    unittest.main()
