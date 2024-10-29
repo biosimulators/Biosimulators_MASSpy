@@ -363,7 +363,7 @@ def preprocess_sed_task(task, variables, config=None):
     if invalid_targets:
         valid_targets = met_ids
         valid_targets += rxn_ids
-        valid_targets += list(custom_parameters.keys())
+        valid_targets += list(mass_model.custom_parameters.keys())
 
         msg = (
             'The following targets are not supported:\n  - {}'
