@@ -314,7 +314,11 @@ def preprocess_sed_task(task, variables, config=None):
     invalid_changes = []
     for target, sbml_id in model_change_target_sbml_id_map.items():
         if sbml_id in met_ids:
-            model_change_target_mass_map[target] = (mass_model.metabolites[met_ids.index(sbml_id)], 'ic')
+            try:
+                model_change_target_mass_map[target] = (mass_model.metabolites[met_ids.index(sbml_id)], 'ic')
+            except:
+                #If the id has a "M_" in front of it:
+                model_change_target_mass_map[target] = (mass_model.metabolites[met_ids.index(sbml_id) - len(mass_model.metabolites)], 'ic')
 
         elif sbml_id in sbml_id_mass_parameter_map:
             model_change_target_mass_map[target] = sbml_id_mass_parameter_map[sbml_id]
