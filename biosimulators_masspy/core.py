@@ -316,8 +316,8 @@ def preprocess_sed_task(task, variables, config=None):
         if sbml_id in met_ids:
             try:
                 model_change_target_mass_map[target] = (mass_model.metabolites[met_ids.index(sbml_id)], 'ic')
-            except:
-                #If the id has a "M_" in front of it:
+            except IndexError:
+                # If the id has a "M_" in front of it:
                 model_change_target_mass_map[target] = (mass_model.metabolites[met_ids.index(sbml_id) - len(mass_model.metabolites)], 'ic')
 
         elif sbml_id in sbml_id_mass_parameter_map:
