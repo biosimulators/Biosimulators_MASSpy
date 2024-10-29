@@ -198,14 +198,21 @@ def exec_sed_task(task, variables, preprocessed_task=None, log=None, config=None
         else:
             sbml_id = variable_target_sbml_id_map[variable.target]
 
-            if sbml_id.startswith('M_'):
-                if sbml_id[2:] in met_concs:
-                    variable_results[variable.id] = met_concs[sbml_id[2:]][-(sim.number_of_points + 1):]
-                else:
-                    variable_results[variable.id] = numpy.full((sim.number_of_points + 1,), met_ics[sbml_id[2:]])
-
-            else:
+            if sbml_id in met_concs:
+                variable_results[variable.id] = met_concs[sbml_id][-(sim.number_of_points + 1):]
+            elif sbml_id[2:] in met_concs:
+                variable_results[variable.id] = met_concs[sbml_id[2:]][-(sim.number_of_points + 1):]
+            elif sbml_id in met_ics:
+                variable_results[variable.id] = numpy.full((sim.number_of_points + 1,), met_ics[sbml_id])
+            elif sbml_id[2:] in met_ics:
+                variable_results[variable.id] = numpy.full((sim.number_of_points + 1,), met_ics[sbml_id[2:]])
+            elif sbml_id in rxn_fluxes:
+                variable_results[variable.id] = rxn_fluxes[sbml_id][-(sim.number_of_points + 1):]
+            elif sbml_id[2:] in rxn_fluxes:
                 variable_results[variable.id] = rxn_fluxes[sbml_id[2:]][-(sim.number_of_points + 1):]
+            else:
+                raise_errors_warnings(validation.validate_task(task),
+                                      error_summary='Unable to find variable `{}` in output.'.format(sbml_id))
 
     # log action
     if config.LOG:
@@ -272,8 +279,10 @@ def preprocess_sed_task(task, variables, config=None):
     doc.setLevelAndVersion(3, 1)
     sbml = libsbml.writeSBMLToString(doc)
     mass_model = mass.io.sbml.read_sbml_model(sbml)
-    met_ids = ['M_' + mass_met.id for mass_met in mass_model.metabolites]
-    rxn_ids = ['R_' + mass_rxn.id for mass_rxn in mass_model.reactions]
+    met_ids = [mass_met.id for mass_met in mass_model.metabolites]
+    met_ids = met_ids + ['M_' + mass_met.id for mass_met in mass_model.metabolites]
+    rxn_ids = [mass_rxn.id for mass_rxn in mass_model.reactions]
+    rxn_ids = rxn_ids + ['R_' + mass_rxn.id for mass_rxn in mass_model.reactions]
 
     # validate model changes
     model_change_target_mass_map = {}
@@ -305,7 +314,11 @@ def preprocess_sed_task(task, variables, config=None):
     invalid_changes = []
     for target, sbml_id in model_change_target_sbml_id_map.items():
         if sbml_id in met_ids:
-            model_change_target_mass_map[target] = (mass_model.metabolites[met_ids.index(sbml_id)], 'ic')
+            try:
+                model_change_target_mass_map[target] = (mass_model.metabolites[met_ids.index(sbml_id)], 'ic')
+            except IndexError:
+                # If the id has a "M_" in front of it:
+                model_change_target_mass_map[target] = (mass_model.metabolites[met_ids.index(sbml_id) - len(mass_model.metabolites)], 'ic')
 
         elif sbml_id in sbml_id_mass_parameter_map:
             model_change_target_mass_map[target] = sbml_id_mass_parameter_map[sbml_id]
@@ -352,11 +365,9 @@ def preprocess_sed_task(task, variables, config=None):
         raise NotImplementedError(msg)
 
     if invalid_targets:
-        valid_targets = []
-        for mass_met in mass_model.metabolites:
-            valid_targets.append("/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='M_{}']".format(mass_met.id))
-        for mass_rxn in mass_model.reactions:
-            valid_targets.append("/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction[@id='R_{}']".format(mass_rxn.id))
+        valid_targets = met_ids
+        valid_targets += rxn_ids
+        valid_targets += list(mass_model.custom_parameters.keys())
 
         msg = (
             'The following targets are not supported:\n  - {}'
