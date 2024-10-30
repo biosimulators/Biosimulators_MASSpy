@@ -656,5 +656,15 @@ class CliTestCase(unittest.TestCase):
             if log.exception:
                 raise log.exception
 
+    def test_exec_sedml_docs_in_combine_archive_b(self):
+            # with reports
+            archive_filename = 'Cilbarto_with_param_and_boundary.omex'
+            archive_filename = os.path.join(os.path.dirname(__file__), 'fixtures', archive_filename)
+
+            dirname = os.path.join(self.dirname, 'reports')
+            _, log = core.exec_sedml_docs_in_combine_archive(str(archive_filename), dirname)
+            if log.exception:
+                raise log.exception
+
 if __name__ == "__main__":
     unittest.main()
