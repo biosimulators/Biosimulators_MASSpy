@@ -214,7 +214,7 @@ def exec_sed_task(task, variables, preprocessed_task=None, log=None, config=None
                 variable_results[variable.id] = numpy.full((sim.number_of_points + 1,), mass_model.custom_parameters[sbml_id])
             elif sbml_id in mass_model.boundary_conditions:
                 variable_results[variable.id] = numpy.full((sim.number_of_points + 1,), mass_model.boundary_conditions[sbml_id])
-                
+
             else:
                 raise_errors_warnings(validation.validate_task(task),
                                       error_summary='Unable to find variable `{}` in output.'.format(sbml_id))
