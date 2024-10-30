@@ -210,6 +210,11 @@ def exec_sed_task(task, variables, preprocessed_task=None, log=None, config=None
                 variable_results[variable.id] = rxn_fluxes[sbml_id][-(sim.number_of_points + 1):]
             elif sbml_id[2:] in rxn_fluxes:
                 variable_results[variable.id] = rxn_fluxes[sbml_id[2:]][-(sim.number_of_points + 1):]
+            elif sbml_id in mass_model.custom_parameters:
+                variable_results[variable.id] = numpy.full((sim.number_of_points + 1,), mass_model.custom_parameters[sbml_id])
+            elif sbml_id in mass_model.boundary_conditions:
+                variable_results[variable.id] = numpy.full((sim.number_of_points + 1,), mass_model.boundary_conditions[sbml_id])
+
             else:
                 raise_errors_warnings(validation.validate_task(task),
                                       error_summary='Unable to find variable `{}` in output.'.format(sbml_id))
@@ -311,6 +316,9 @@ def preprocess_sed_task(task, variables, config=None):
     for sbml_id in mass_model.boundary_conditions.keys():
         sbml_id_mass_parameter_map[sbml_id] = (mass_model.boundary_conditions, sbml_id)
 
+    for sbml_id in mass_model.compartments.keys():
+        sbml_id_mass_parameter_map[sbml_id] = (mass_model.compartments, sbml_id)
+
     invalid_changes = []
     for target, sbml_id in model_change_target_sbml_id_map.items():
         if sbml_id in met_ids:
@@ -349,7 +357,7 @@ def preprocess_sed_task(task, variables, config=None):
         else:
             sbml_id = variable_target_sbml_id_map.get(variable.target, None)
 
-            if not sbml_id or not (sbml_id in met_ids or sbml_id in rxn_ids):
+            if not sbml_id or not (sbml_id in met_ids or sbml_id in rxn_ids or sbml_id in sbml_id_mass_parameter_map):
                 invalid_targets.append(variable.target)
 
     if invalid_symbols:

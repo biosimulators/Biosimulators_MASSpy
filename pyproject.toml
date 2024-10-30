@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "biosimulators-masspy"
-version = "0.1.1"
+version = "0.1.2"
 description = "BioSimulators-compliant command-line interface to the MassPY simulation program <https://masspy.readthedocs.io/>."
 authors = ["Center for Reproducible Biomedical Modeling <info@biosimulators.org>"]
 license = "MIT"
